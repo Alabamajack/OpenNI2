@@ -1,3 +1,7 @@
+# OpenNI Jetson TX1
+This repo contains all changes to build the openni2 package on the the TX1. It is not thought for cross-compiling, just clone it directly on the TX1 and follow the build instructions.
+I have not created extra dependencies for aarch64, I just fixed some compiler flags (which are not usable with gcc for aarch64) and changed one pointer to integer conversion. The build process assumes that the platform is an arm!
+
 # OpenNI
 
 http://structure.io/openni
