@@ -1,0 +1,73 @@
+diff --git a/Include/OniPlatform.h b/Include/OniPlatform.h
+index 602b4ba..1f5d5f6 100644
+--- a/Include/OniPlatform.h
++++ b/Include/OniPlatform.h
+@@ -41,6 +41,8 @@
+ #	include "Linux-x86/OniPlatformLinux-x86.h"
+ #elif (__linux__ && __arm__)
+ #	include "Linux-Arm/OniPlatformLinux-Arm.h"
++#elif (__linux__ && __aarch64__)
++#	include "Linux-Arm/OniPlatformLinux-Arm.h"
+ #elif _ARC
+ #	include "ARC/OniPlaformARC.h"
+ #elif (__APPLE__)
+diff --git a/Source/Drivers/OniFile/DataRecords.cpp b/Source/Drivers/OniFile/DataRecords.cpp
+index bffc7e6..c3fc2a9 100644
+--- a/Source/Drivers/OniFile/DataRecords.cpp
++++ b/Source/Drivers/OniFile/DataRecords.cpp
+@@ -668,7 +668,7 @@ XnStatus GeneralPropRecord::Decode()
+ 
+ #if (XN_PLATFORM == XN_PLATFORM_LINUX_ARM || XN_PLATFORM == XN_PLATFORM_ARC || XN_PLATFORM == XN_PLATFORM_ANDROID_ARM)
+ 	// under ARM we have some alignment issues. Move this buffer so it will be aligned.
+-	XnUInt32 nAlignFix = XN_DEFAULT_MEM_ALIGN - ((XnUInt32)pData % XN_DEFAULT_MEM_ALIGN);
++	XnUInt64 nAlignFix = XN_DEFAULT_MEM_ALIGN - ((XnUInt64)pData % XN_DEFAULT_MEM_ALIGN);
+ 	if (nAlignFix != 0)
+ 	{
+ 		xnOSMemMove(pData + nAlignFix, pData, m_nPropDataSize);
+diff --git a/ThirdParty/PSCommon/BuildSystem/CommonDefs.mak b/ThirdParty/PSCommon/BuildSystem/CommonDefs.mak
+index dd88b04..e7daab7 100644
+--- a/ThirdParty/PSCommon/BuildSystem/CommonDefs.mak
++++ b/ThirdParty/PSCommon/BuildSystem/CommonDefs.mak
+@@ -18,6 +18,8 @@ else ifneq (,$(findstring i386,$(MACHINE)))
+ 	HOST_PLATFORM = x86
+ else ifneq (,$(findstring arm,$(MACHINE)))
+ 	HOST_PLATFORM = Arm
++else ifneq (,$(findstring aarch64,$(MACHINE)))
++       HOST_PLATFORM = Arm
+ else
+ 	DUMMY:=$(error Can't determine host platform)
+ endif
+diff --git a/ThirdParty/PSCommon/BuildSystem/Platform.Arm b/ThirdParty/PSCommon/BuildSystem/Platform.Arm
+index c4a112d..4b78b1d 100644
+--- a/ThirdParty/PSCommon/BuildSystem/Platform.Arm
++++ b/ThirdParty/PSCommon/BuildSystem/Platform.Arm
+@@ -1,7 +1,7 @@
+ ifeq "$(CFG)" "Release"
+ 
+     # Hardware specifying flags
+-    CFLAGS += -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp #-mcpu=cortex-a8
++    #CFLAGS += -march=armv7-a -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp #-mcpu=cortex-a8
+ 
+     # Optimization level, minus currently buggy optimizing methods (which break bit-exact)
+     CFLAGS += -O3 -fno-tree-pre -fno-strict-aliasing
+@@ -9,6 +9,6 @@ ifeq "$(CFG)" "Release"
+     # More optimization flags
+     CFLAGS += -ftree-vectorize -ffast-math -funsafe-math-optimizations #-fsingle-precision-constant
+ 
+-    DEFINES += XN_NEON
++    #DEFINES += XN_NEON
+     CFLAGS += -flax-vector-conversions
+ endif
+diff --git a/ThirdParty/PSCommon/XnLib/Include/XnPlatform.h b/ThirdParty/PSCommon/XnLib/Include/XnPlatform.h
+index 07e8192..31d33cf 100644
+--- a/ThirdParty/PSCommon/XnLib/Include/XnPlatform.h
++++ b/ThirdParty/PSCommon/XnLib/Include/XnPlatform.h
+@@ -53,6 +53,8 @@
+ #include "Linux-x86/XnPlatformLinux-x86.h"
+ #elif (__linux__ && __arm__)
+ #include "Linux-Arm/XnPlatformLinux-Arm.h"
++#elif (__linux__ && __aarch64__)
++#include "Linux-Arm/XnPlatformLinux-Arm.h"
+ #elif _ARC
+ #include "ARC/XnPlaformARC.h"
+ #elif (__APPLE__)
